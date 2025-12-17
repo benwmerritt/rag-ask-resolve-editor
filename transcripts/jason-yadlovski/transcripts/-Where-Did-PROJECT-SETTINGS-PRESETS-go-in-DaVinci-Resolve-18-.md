@@ -1,0 +1,11 @@
+---
+title: "⁉️ Where Did PROJECT SETTINGS PRESETS go in DaVinci Resolve 18?  😲"
+video_id: MjeD-DVxwlA
+channel: JasonYadlovski
+url: https://youtube.com/watch?v=MjeD-DVxwlA
+duration_seconds: 111.0
+date_processed: 2025-11-05
+---
+
+## Transcript
+Well today's not Tuesday. It's actually Thursday. I'm gonna call this a quick tip Tuesday and today I'm gonna show you exactly where black magic design hid. That's right They hid it because I couldn't find it for a while the project settings presets. Where'd they go black magic? I can't find them. Oh by the way, if you do want some project settings presets 4k 1080 all kinds of stuff I've got some in my store. I'll link it in the description below you can check that out All right, let's see where it is real quick and resolve to find the project settings presets here in resolve Make sure you got a new project opened up You want to come to your project settings the little gear icon at the bottom right hand corner of the screen? Once you get that it's gonna bring up this window here And we used to see our project settings right at the top here or our presets our project preset settings at the top here They're not there anymore. I was looking all over for I was like what how where'd they go? Here's where they went you go to these three little dots right here click on those guys And now you've got all your project settings presets in here You can see I've got a whole bunch of different frame rates 1080 4k and you got your default one up here now If you create a new project preset you would go set up your project however you want and then you could just come down here and save Say save current settings as a preset now Maybe you want to update one of your project settings you can go make an update and then you can come to any project and you can Say update preset settings so it's really easy there it is underneath the three dots there in DaVinci resolve black magic You hit it on me. That was sneaky. I'm gonna tell you that was sneaky, but we found it and now you guys know where it is too So with that said guys, thanks so much for checking out the video make some project presets help speed up your workflow With that said guys, I look forward to seeing you in the next video

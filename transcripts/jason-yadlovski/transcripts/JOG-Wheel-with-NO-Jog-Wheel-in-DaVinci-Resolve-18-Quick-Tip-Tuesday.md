@@ -1,0 +1,11 @@
+---
+title: "JOG Wheel with NO Jog Wheel in DaVinci Resolve 18 | Quick Tip Tuesday!"
+video_id: 9Pf0sKxPZbI
+channel: JasonYadlovski
+url: https://youtube.com/watch?v=9Pf0sKxPZbI
+duration_seconds: 108.0
+date_processed: 2025-11-04
+---
+
+## Transcript
+Have you seen this little icon in DaVinci Resolve? You're not sure what it is? That's a jog wheel. Did you know that? Check it out. I'll show you where you can find it and how to use it. So I'm in the edit tab right here of DaVinci Resolve and if we take a look at our viewer up here, our timeline viewer, boom, there's that little icon. There's the jog wheel icon and if we hover over it, we're gonna get an arrow. So we can just click hold and drag back and forth to move our playhead around the timeline. And not only does it work there, but we can also open up our two viewers. So we've got our source viewer. So if I just open up some media here, let's say a little loudness b-roll, let's say I want to scrub through this with the jog wheel. Again, we have our symbol right here, hover over it, click hold and drag and we can just move around our clip just like that. Now, if you have a jog wheel, maybe you've got the speed editor or maybe you've got the awesome keyboard there from Blackmagic Design. The jog wheel, you're just gonna use it on those units itself, right? But I don't have that. So I could use this right here in DaVinci Resolve and not only is it here in the edit tab, but if we jump over to the cut tab in the cut tab here, there it is again. There's our jog wheel. I can click hold and drag back and forth. It's gonna allow me to scrub around my timeline real quick and easy. So I want to know who uses that jog wheel icon in DaVinci Resolve or do you have the speed editor or the DaVinci Resolve keyboard? I want to know who's got it. Comment down below. Let me know. Is it something I should pick up? I don't know. I've been on the fence about it, but I want to hear what you guys think about using the jog wheel. Oh, by the way, do you want to level up your audio for your videos? Have you checked out my new course, Audio Essentials for Video Editors in DaVinci Resolve? If you haven't, I'll link it up in the description below. Check it out if it's something that you're interested in. And with that said, guys, I will see you in the next video. Peace.

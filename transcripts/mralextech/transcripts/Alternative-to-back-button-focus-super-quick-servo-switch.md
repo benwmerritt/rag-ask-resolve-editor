@@ -1,0 +1,11 @@
+---
+title: "Alternative to back button focus - super quick servo switch"
+video_id: CR0bR0R00T0
+channel: MrAlexTech
+url: https://youtube.com/watch?v=CR0bR0R00T0
+duration_seconds: 170.0
+date_processed: 2025-11-16
+---
+
+## Transcript
+Music Hello Alex here, Alex from Travis Photography, new video, new location as you can see I'm in the kitchen today so I'll show you how this works. Today I wanted to do a quick video on this little button here which is your depth of field preview button by default. Music Now if you've never used it before, you're not the only one because I don't ever use it either. You can push it to preview your depth of field so if you want to have a look at how the picture will look at F8 or F5.6 whatever you've set your aperture to be, you can push that while looking through the viewfinder and it will give you a preview of your depth of field. Now I've never used it, that's not particularly useful for me so what you can do is change this button here and change it from a depth of field preview and you can actually make it to a one shot survey switch button. So what that means is when I'm out shooting I'll be in one shot because I'm in one shot 95% of the time so as you can hear, half push my shutter, it focuses, 10-5 time. Now rather than having to pop into the menu to change your autofocus mode, you can just hold that button and it'll be straight into survey mode and you're good to go. And here's how you do it. So if you hit menu on your camera and scroll right across to the custom functions menu and you want to go to the custom functions number 3, operation slash others, give that a click and you're looking for the custom controls menu. On the 60 it's number 5, so it goes to number 5, it's the left hand column right at the bottom there's a little aperture logo, you want to go on there and by default as I say you'll be set to the depth of field preview. You want the one that says one shot and then you've got the two little arrows, AI survey. Give that one a click, hop out of there and then you're good to go. It works really well for me, I'd certainly recommend giving it a go especially if you're not a big fan of the back button focus method. So yeah, that's my handy tip for the day, give it a go, let me know how you get on with it, hopefully it works for you, thanks very much.

@@ -1,0 +1,11 @@
+---
+title: "How to Wrap Text in DaVinci Resolve 20 (plus free preset!)"
+video_id: MBB9sDWUF5A
+channel: MrAlexTech
+url: https://youtube.com/watch?v=MBB9sDWUF5A
+duration_seconds: 137.0
+date_processed: 2025-11-03
+---
+
+## Transcript
+So, doing a super quick tip on a Tuesday. Yeah, this is unique. No one's ever done this before. Anyway, wrapped text. You can do wrapped text in DaVinci Resolve 20, both if free and studio versions, which means when you move your box, your text moves as well. So your text doesn't go off the screen. Simples. Now, all you need to do, open up the effects library, come down to titles, and you want to grab a text plus. Not the standard text, text plus. Put it on your timeline, give it a click, open up the inspector, top right hand corner, open up the text plus if you need to, then go to layout, change the type from point to text box, then tick the wrap to text box. Underneath your preview window, click on this little drop down and enable the fusion overlay, and that's it. So now we've got this green box. If we click on it, we can move it around, and as we do, add text will adjust. If we make it about that size, go to add text, keep typing away. As you can see, it's going to fit in our box. Yeah, that's it. That's all there is to it. But I like this. This is handy, especially if I'm doing short form stuff. So I made the little template. In the same place, titles, I need to scroll right down in the fusion area. I've got this wrapped text plus, drop that on my timeline, and it's already got the text box on it. And that's all it is. It's the standard text plus, but with the box already ticked. So it's already good to go. Now, that's not hard to make. I've made a video in the past showing you how to save text plus titles for yourself. I've linked that down below so you can have a look. But if you do want that, I have hosted it. It's completely for free, so you can download it, double click the DRFX. It will install and then it will appear within the titles area on the edit page, and it just saves you five seconds. Every now and again. It will ask you to put money in the box. Just put a zero. I don't expect you to pay for this, but it's just the easiest way for me to host things. It asks for your email address too. Just type something in. I don't send emails. Hopefully that was useful. See you next time.

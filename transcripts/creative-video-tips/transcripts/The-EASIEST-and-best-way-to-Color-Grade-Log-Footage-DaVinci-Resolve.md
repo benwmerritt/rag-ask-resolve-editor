@@ -1,0 +1,11 @@
+---
+title: "The EASIEST (and best) way to Color Grade Log Footage - DaVinci Resolve"
+video_id: EPl-yqwClIA
+channel: CreativeVideoTips
+url: https://youtube.com/watch?v=EPl-yqwClIA
+duration_seconds: 102.0
+date_processed: 2025-11-04
+---
+
+## Transcript
+Here's how to transform your flat, desaturated, log-encoded footage so that it pops from your new Sony a7 IV or Canon R5C without using a LUT or a color grade. First, open Project Settings and go to Color Management to enable DaVinci WireGb Color Managed. Choose HDR Color Processing Mode and uncheck the Automatic Color Management box so you can change the color processing mode to HDR DaVinci Wide Gamut Intermediate. Wide Gamut is a massive color space and is the latest and greatest from Blackmagic Design. For most situations, leave your output color space at Rec 709 Gamut 2.4 unless you're working exclusively on an Apple Display and then you can choose Rec 709A and save. I have a video about using Rec 709A to make YouTube videos from a Mac that's linked in the description. In the media pool or color page, right-click to define the input color space. This is the picture profile color space that was used to film with in-camera. There are subtle but important differences between color spaces so if you're uncertain, ask the production team for this color space information or use a utility like Sony Catalyst Brows to read the whole clip metadata. And if you have RAW footage like Blackmagic Be-Raw, DaVinci Resolve already has this taken care of behind the scenes with built-in metadata. One of my favorite tools to use with color managed projects are the HDR color wheels because they behave in the same way a camera does with exposure and white balance and they also have a really nice highlight roll-off that doesn't clip easily. Now you have the flexibility of recording high dynamic range log footage without needing to know anything about color grading and still deliver great results. And you have a great starting point for a more creative color grade. But if your curiosity is piqued, check out this simple but comprehensive overview of Resolve color management and because there's so much more to learn, I'll see you in the next video.

@@ -1,0 +1,11 @@
+---
+title: "Jump KEYFRAME to KEYFRAME Shortcut in DaVinci Resolve 18 | Quick Tip Tuesday!"
+video_id: TCUkTrZ_po4
+channel: JasonYadlovski
+url: https://youtube.com/watch?v=TCUkTrZ_po4
+duration_seconds: 112.0
+date_processed: 2025-11-04
+---
+
+## Transcript
+Did you know there's a keyboard shortcut to get from keyframe to keyframe? Real quick and easy. Let's jump in resolve, I'll show you this. So check it out, I am in the edit tab right here, and I've got some keyframes on my video clip as well as on my audio clip. Now, typically we'd have to come into our inspector right here, I'm in the video section, we might click this little arrow to go to the different keyframes, right? But we don't want to do that because that takes too much time. You can use your right and left bracket keys to jump from keyframe to keyframe. So if I use my right bracket key, you can see on my video clip right here, it's going to jump to the keyframes. Now, if I have my video clip selected and my lock track is turned on here, or linked selection is turned on, I should say. You notice we have keyframes on my audio clip too, but it's not jumping to those keyframes. So how do we do just the video or just the audio and jump to those keyframes? Well, if I just deselect those, you can use your alt key on a PC or option on a Mac to just select one clip. We don't actually need to come up here and unlink the clips. And then we can just use our right and left bracket keys. It works on my video track. If I deselect, and then I select just my audio track using alt on a PC or option on a Mac and clicking on the track. Now I can use my bracket keys to go through my audio keyframes. So real quick and easy, pretty much anything you guys want to know how to do in Resolve, you can do it. We'll figure it out if you got a question. Leave a comment down below. Happy to make quick little videos, quick tip Tuesdays about it, or just dig into stuff a little bit and get answers for you guys on questions you might have here in DaVinci Resolve. With that said guys, quick tip Tuesday in the books. Thanks so much for watching. I will see you in the next video. Peace. Oh, by the way, happy Halloween because the day I'm releasing this video is Halloween. So happy Halloween.

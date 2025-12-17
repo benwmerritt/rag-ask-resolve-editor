@@ -1,0 +1,11 @@
+---
+title: "#1 Thing BEFORE Upgrading to DaVinci Resolve 19 Beta! | You Might Thank Me Later"
+video_id: lHvgTBQSRA4
+channel: JasonYadlovski
+url: https://youtube.com/watch?v=lHvgTBQSRA4
+duration_seconds: 100.0
+date_processed: 2025-11-04
+---
+
+## Transcript
+Back up your database. That's it. You wanna make sure you back up your database before you upgrade to DaVinci Resolve 19 beta, or if you're seeing this once the full release is out, make sure you back it up and here's how to do it. In DaVinci Resolve here, doesn't matter what tab you're in, you wanna come down and click on the house icon down here at the bottom right hand corner of the screen. That's gonna bring up our project manager. It looks like this. And you wanna make sure you can see your databases over here on the left. If you can't see the databases, this little guy right here, this icon, you wanna click that. It's gonna open up your databases. And now you wanna back up each database that you might have. You can see I have four here. So to do it, you come to the little eye in a circle there that says details, we're gonna click on that. And we have right here, backup. We're gonna go ahead and click on backup. Then you can navigate to wherever you wanna put your backup. In my case, it's on an external hard drive. I have a folder called database and backups. And you can see I've got a whole bunch in here. So what I like to do is use the date and DaVinci Resolve version number. So that way I know where this database backup came from. Once you named it, go ahead and hit save. You'll get a little window that says backup project library. It may take some time depending on how many projects you have in your database. I've got a ton of them, a couple years' worth of YouTube videos. So I'm gonna go ahead and hit backup. Once you've gone ahead and saved that backup, you're good to go. You can go ahead and download DaVinci Resolve 19 beta or the full release if it's out when you're watching this video. I got a video on how to do it. Check it out up over here. So why you might be thinking backing up isn't for me. Remember, it's better to be safe and sorry. Back up that database. Thanks so much for watching. I will see you in the next video. Peace.
