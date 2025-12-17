@@ -26,7 +26,7 @@ chunking:
   notes_chunk_overlap: 200
   preserve_sections: true
   min_chunk_size: 200
-  max_chunk_size: 3000
+  max_chunk_size: 1500
   transcript_chunk_minutes: 3
   transcript_overlap_seconds: 30
 
