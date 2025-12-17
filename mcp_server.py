@@ -252,7 +252,7 @@ def ask_resolve_editor(question: str, top_k: Any = 18, max_tokens: Any = 2600, u
             f"## Key Techniques\n\n{bullets}\n\n"
             f"## Suggested Next Steps\n\n- Review which workflow or technique applies to your current project\n- Practice the technique on test footage before applying to your main timeline\n- Experiment with variations to find what works best for your specific content\n"
         )
-    # Build sources list (titles only, no URLs)
+    # Build sources list with proper attribution
     sources = []
     seen_src = set()
     used_scores = []
@@ -260,12 +260,28 @@ def ask_resolve_editor(question: str, top_k: Any = 18, max_tokens: Any = 2600, u
         meta = h.get('metadata', {}) or {}
         title = meta.get('title') or meta.get('source_title') or 'Untitled'
         url = meta.get('url') or meta.get('source_url')
+        doc_type = meta.get('doc_type', '')
         fp = meta.get('file_path')
         key = (title, url or fp)
         if key in seen_src:
             continue
         seen_src.add(key)
-        sources.append({'title': title, 'url': url})
+
+        # Build source entry based on content type
+        if url:
+            # Video/transcript with URL
+            sources.append({'title': title, 'url': url, 'type': 'video'})
+        elif doc_type == 'manual' or meta.get('source') == 'DaVinci Resolve User Manual':
+            # Manual section - build descriptive reference
+            chapter = meta.get('chapter')
+            source_ref = meta.get('source', 'DaVinci Resolve User Manual')
+            if chapter:
+                source_ref = f"{source_ref}, Chapter {chapter}"
+            sources.append({'title': title, 'source': source_ref, 'type': 'manual'})
+        else:
+            # Other content without URL
+            sources.append({'title': title, 'source': meta.get('source', 'Unknown'), 'type': 'document'})
+
         if isinstance(h.get('score'), (int, float)):
             used_scores.append(h.get('score'))
         if len(sources) >= 5:
