@@ -66,4 +66,7 @@ htmlcov/
 .cache/
 
 # Big stuff
-.pdf
+*.pdf
+*.pdf
+*.pdf
+*.pdf
