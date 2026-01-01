@@ -40,12 +40,13 @@ search:
   hybrid_alpha: 0.7  # 70% vector, 30% BM25
   bm25_index_path: "/app/data/bm25_index.pkl"
 
-# ⚠️ ENRICHMENT DISABLED - COSTS ~$5 PER BUILD
+# ⚠️ ENRICHMENT DISABLED - costs money per build!
 # To enable: change 'enabled' to true (only do this intentionally!)
+# Providers: "openrouter" (~10x cheaper) or "anthropic"
 metadata_injection:
   enabled: false
-  provider: "anthropic"
-  model: "claude-haiku-4-5-20251001"
+  provider: "openrouter"
+  model: "google/gemini-3-flash-preview"
   batch_size: 5
 
 # Cohere reranking for final result relevance

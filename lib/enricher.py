@@ -8,11 +8,19 @@ from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
+# Anthropic for chunk enrichment
 try:
     import anthropic
     ANTHROPIC_AVAILABLE = True
 except ImportError:
     ANTHROPIC_AVAILABLE = False
+
+# OpenAI client for OpenRouter (OpenAI-compatible API)
+try:
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
 
 
 @dataclass
@@ -27,16 +35,68 @@ class ChunkEnricher:
     def __init__(self, config: Dict[str, Any]):
         self.config = config.get('metadata_injection', {})
         self.enabled = self.config.get('enabled', False)
+        self.provider = self.config.get('provider', 'anthropic')
         self.model = self.config.get('model', 'claude-3-5-haiku-20241022')
         self.batch_size = self.config.get('batch_size', 5)
         self.client = None
 
-        if self.enabled and ANTHROPIC_AVAILABLE:
-            api_key = os.getenv('ANTHROPIC_API_KEY')
-            if api_key:
-                self.client = anthropic.Anthropic(api_key=api_key)
-            else:
-                logger.warning("ANTHROPIC_API_KEY not set, enrichment disabled")
+        if not self.enabled:
+            return
+
+        # Initialize the appropriate client based on provider
+        if self.provider == 'openrouter':
+            self._init_openrouter()
+        else:
+            self._init_anthropic()
+
+    def _init_openrouter(self):
+        """Initialize OpenRouter client (OpenAI-compatible API)."""
+        if not OPENAI_AVAILABLE:
+            logger.warning("openai package not installed, falling back to Anthropic")
+            self.provider = 'anthropic'
+            self._init_anthropic()
+            return
+
+        api_key = os.getenv('OPENROUTER_API_KEY')
+        if api_key:
+            self.client = OpenAI(
+                base_url="https://openrouter.ai/api/v1",
+                api_key=api_key
+            )
+            logger.info(f"Enrichment using OpenRouter with model: {self.model}")
+        else:
+            logger.warning("OPENROUTER_API_KEY not set, falling back to Anthropic")
+            self.provider = 'anthropic'
+            self._init_anthropic()
+
+    def _init_anthropic(self):
+        """Initialize Anthropic client."""
+        if not ANTHROPIC_AVAILABLE:
+            logger.warning("anthropic package not installed, enrichment disabled")
+            return
+
+        api_key = os.getenv('ANTHROPIC_API_KEY')
+        if api_key:
+            self.client = anthropic.Anthropic(api_key=api_key)
+            logger.info(f"Enrichment using Anthropic with model: {self.model}")
+        else:
+            logger.warning("ANTHROPIC_API_KEY not set, enrichment disabled")
+
+    def _call_llm(self, prompt: str) -> str:
+        """Call the configured LLM provider and return response text."""
+        if self.provider == 'openrouter':
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            return response.choices[0].message.content
+        else:  # anthropic
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=1500,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            return response.content[0].text
 
     def enrich_chunks(self, chunks: List) -> List:
         """Add LLM-generated summaries and keywords to chunks."""
@@ -44,7 +104,7 @@ class ChunkEnricher:
             return chunks
 
         if not self.client:
-            logger.warning("Enrichment enabled but Anthropic client unavailable")
+            logger.warning("Enrichment enabled but no LLM client available")
             return chunks
 
         enriched = []
@@ -104,14 +164,7 @@ Respond in JSON format as an array:
 Return ONLY valid JSON, no other text."""
 
         try:
-            response = self.client.messages.create(
-                model=self.model,
-                max_tokens=1500,
-                messages=[{"role": "user", "content": prompt}]
-            )
-
-            # Parse JSON response
-            text = response.content[0].text.strip()
+            text = self._call_llm(prompt).strip()
 
             # Handle potential markdown code blocks
             if text.startswith("```"):
