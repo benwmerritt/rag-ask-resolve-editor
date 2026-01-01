@@ -1,6 +1,6 @@
 """
 Universal Embedding System
-Supports OpenAI (best quality) with local fallback
+Supports Voyage AI, OpenAI, and local fallback
 """
 
 import os
@@ -12,49 +12,142 @@ from pathlib import Path
 from tqdm import tqdm
 import logging
 from dotenv import load_dotenv
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
+
+try:
+    import voyageai
+    VOYAGE_AVAILABLE = True
+except ImportError:
+    VOYAGE_AVAILABLE = False
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+class VoyageEmbeddingFunction:
+    """Custom embedding function for Voyage AI that works with ChromaDB.
+
+    Voyage requires different input_type for documents vs queries:
+    - input_type="document" for content being stored
+    - input_type="query" for search queries
+
+    This class defaults to "document" for ingestion. For queries,
+    use the embed_query() method or create a separate instance with input_type="query".
+    """
+
+    def __init__(
+        self,
+        api_key: str,
+        model: str = "voyage-3-lite",
+        input_type: str = "document",
+        truncation: bool = True
+    ):
+        if not VOYAGE_AVAILABLE:
+            raise ImportError("voyageai package not installed. Run: pip install voyageai")
+
+        self.client = voyageai.Client(api_key=api_key)
+        self.model = model
+        self.input_type = input_type
+        self.truncation = truncation
+
+    def name(self) -> str:
+        return f"voyage-{self.model}"
+
+    def __call__(self, input: List[str]) -> List[List[float]]:
+        """ChromaDB calls this to embed text during .add() and .query()."""
+        if not input:
+            return []
+
+        result = self.client.embed(
+            texts=input,
+            model=self.model,
+            input_type=self.input_type,
+            truncation=self.truncation
+        )
+        return result.embeddings
+
+    def embed_query(self, text: str) -> List[float]:
+        """Embed a single query with input_type='query' for better retrieval."""
+        result = self.client.embed(
+            texts=[text],
+            model=self.model,
+            input_type="query",
+            truncation=self.truncation
+        )
+        return result.embeddings[0]
+
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        """Embed multiple documents with input_type='document'."""
+        if not texts:
+            return []
+
+        result = self.client.embed(
+            texts=texts,
+            model=self.model,
+            input_type="document",
+            truncation=self.truncation
+        )
+        return result.embeddings
+
+
 class UniversalEmbedder:
     """Create and manage embeddings for any knowledge base"""
-
+    
     def __init__(self, config_path: str = "config.yaml"):
         # Load config
         config_path = os.getenv('WIKI_VAULT_CONFIG', config_path)
         with open(config_path, 'r') as f:
             self.config = yaml.safe_load(f)
-
+        
         # Initialize Chroma
         self.client = chromadb.PersistentClient(
             path=self.config['chroma']['persist_directory'],
             settings=Settings(anonymized_telemetry=False)
         )
-
+        
         # Get embedding function
         self.embedding_function = self._get_embedding_function()
-
+        
         # Collection prefix for uniqueness
         self.prefix = self.config['chroma']['collection_prefix']
-
+        
         # Initialize collections
         self.collections = self._init_collections()
-
+        
     def _get_embedding_function(self):
-        """Get the best available embedding function"""
-        provider = self.config['embeddings']['provider']
+        """Get the best available embedding function.
 
-        # Try OpenAI first (best quality)
-        if provider == 'openai':
+        Provider priority: voyage > openai > local
+        Falls through to next provider if API key not found.
+        """
+        provider = self.config['embeddings']['provider']
+        model = self.config['embeddings'].get('model', 'text-embedding-3-small')
+
+        # Try Voyage first (if configured)
+        if provider == 'voyage':
+            api_key = os.getenv('VOYAGE_API_KEY')
+            if api_key and VOYAGE_AVAILABLE:
+                logger.info(f"Using Voyage embeddings: {model}")
+                return VoyageEmbeddingFunction(
+                    api_key=api_key,
+                    model=model,
+                    input_type="document"  # For ingestion
+                )
+            elif not VOYAGE_AVAILABLE:
+                logger.warning("voyageai package not installed, falling back to OpenAI")
+            else:
+                logger.warning("VOYAGE_API_KEY not found, falling back to OpenAI")
+
+        # Try OpenAI (if configured or as fallback from Voyage)
+        if provider in ('openai', 'voyage'):
             api_key = os.getenv('OPENAI_API_KEY')
             if api_key:
-                logger.info(f"Using OpenAI embeddings: {self.config['embeddings']['model']}")
+                openai_model = model if provider == 'openai' else 'text-embedding-3-small'
+                logger.info(f"Using OpenAI embeddings: {openai_model}")
                 return embedding_functions.OpenAIEmbeddingFunction(
                     api_key=api_key,
-                    model_name=self.config['embeddings']['model']
+                    model_name=openai_model
                 )
             else:
                 logger.warning("OpenAI API key not found, falling back to local embeddings")
@@ -65,12 +158,12 @@ class UniversalEmbedder:
         return embedding_functions.SentenceTransformerEmbeddingFunction(
             model_name=fallback_model
         )
-
+    
     def _init_collections(self) -> Dict[str, chromadb.Collection]:
         """Initialize collections (create if not exist)"""
         collections = {}
         names = self.config['chroma']['collections']
-
+        
         # Main content collection
         content_name = f"{self.prefix}_{names['content']}"
         collections['content'] = self.client.get_or_create_collection(
@@ -82,7 +175,7 @@ class UniversalEmbedder:
                 "topic": self.config['knowledge_base']['topic']
             }
         )
-
+        
         # Concepts collection
         concepts_name = f"{self.prefix}_{names['concepts']}"
         collections['concepts'] = self.client.get_or_create_collection(
@@ -93,7 +186,7 @@ class UniversalEmbedder:
                 "creator": self.config['knowledge_base']['creator']
             }
         )
-
+        
         # Metadata collection
         metadata_name = f"{self.prefix}_{names['metadata']}"
         collections['metadata'] = self.client.get_or_create_collection(
@@ -103,7 +196,7 @@ class UniversalEmbedder:
                 "description": f"{self.config['knowledge_base']['name']} - Video metadata"
             }
         )
-
+        
         # Quotes collection (if applicable)
         if 'quotes' in names:
             quotes_name = f"{self.prefix}_{names['quotes']}"
@@ -112,37 +205,39 @@ class UniversalEmbedder:
                 embedding_function=self.embedding_function,
                 metadata={"description": f"{self.config['knowledge_base']['name']} - Quotes"}
             )
-
+        
         logger.info(f"Initialized {len(collections)} collections")
         return collections
-
+    
     def embed_chunks(self, chunks: List, batch_size: int = None) -> int:
         """Embed content chunks"""
         if batch_size is None:
             batch_size = self.config['embeddings']['batch_size']
-
+        
         collection = self.collections['content']
         embedded_count = 0
-
+        
         logger.info(f"Embedding {len(chunks)} chunks...")
-
+        
         for i in tqdm(range(0, len(chunks), batch_size), desc="Embedding chunks"):
             batch = chunks[i:i + batch_size]
-
+            
             # Prepare batch
             ids = []
             documents = []
             metadatas = []
-
+            
             for chunk in batch:
                 ids.append(chunk.chunk_id)
-                documents.append(chunk.content)
-
+                # Use enriched content if available (from LLM enrichment)
+                content = getattr(chunk, 'enriched_content', None) or chunk.content
+                documents.append(content)
+                
                 # Clean metadata
                 metadata = chunk.metadata.copy()
                 metadata['chunk_type'] = chunk.chunk_type
                 metadata['token_count'] = chunk.token_count
-
+                
                 # Ensure all values are strings or numbers
                 for key, value in metadata.items():
                     if value is None:
@@ -155,9 +250,9 @@ class UniversalEmbedder:
                     elif not isinstance(value, (str, int, float, bool)):
                         # Convert any other object to string
                         metadata[key] = str(value)
-
+                
                 metadatas.append(metadata)
-
+            
             # Add to collection
             collection.add(
                 ids=ids,
@@ -165,22 +260,22 @@ class UniversalEmbedder:
                 metadatas=metadatas
             )
             embedded_count += len(batch)
-
+        
         logger.info(f"✅ Embedded {embedded_count} chunks")
         return embedded_count
-
+    
     def embed_concepts(self, documents: List) -> int:
         """Embed concepts separately"""
         collection = self.collections['concepts']
         concepts_data = []
-
+        
         for doc_idx, doc in enumerate(documents):
             for concept_idx, concept in enumerate(doc.concepts):
                 if concept.get('name'):
                     # Add indices to ensure uniqueness
                     cname = str(concept.get('name') or 'concept')
                     concept_id = f"doc{doc_idx:03d}_concept{concept_idx:02d}_{cname.replace(' ', '_')}"
-
+                    
                     # Create concept document
                     concept_doc = f"Concept: {cname}\n"
                     if concept.get('definition'):
@@ -188,7 +283,7 @@ class UniversalEmbedder:
                     safe_title = (doc.title or Path(doc.file_path).stem)
                     concept_doc += f"Source: {safe_title}\n"
                     concept_doc += f"Creator: {doc.creator or self.config['knowledge_base']['creator']}"
-
+                    
                     # Build safe metadata (no None values)
                     meta = {
                         'concept_name': concept.get('name') or '',
@@ -210,11 +305,11 @@ class UniversalEmbedder:
                         'document': concept_doc,
                         'metadata': meta
                     })
-
+        
         # Batch add concepts
         if concepts_data:
             batch_size = self.config['embeddings']['batch_size']
-
+            
             for i in tqdm(range(0, len(concepts_data), batch_size), desc="Embedding concepts"):
                 batch = concepts_data[i:i + batch_size]
                 # Final safety pass on metadata
@@ -235,28 +330,28 @@ class UniversalEmbedder:
                     documents=[c['document'] for c in batch],
                     metadatas=safe_metas
                 )
-
+        
         logger.info(f"✅ Embedded {len(concepts_data)} concepts")
         return len(concepts_data)
-
+    
     def embed_metadata(self, documents: List) -> int:
         """Embed document metadata"""
         collection = self.collections['metadata']
-
+        
         for doc in tqdm(documents, desc="Embedding metadata"):
             # Create metadata document
             meta_doc = f"Title: {doc.title}\n"
             meta_doc += f"Type: {doc.doc_type}\n"
-
+            
             if doc.url:
                 meta_doc += f"URL: {doc.url}\n"
-
+            
             if doc.summary:
                 meta_doc += f"\nSummary: {doc.summary}\n"
-
+            
             if doc.lessons:
                 meta_doc += f"\nKey Points: {'; '.join(doc.lessons[:3])}\n"
-
+            
             safe_title = (doc.title or Path(doc.file_path).stem)
             metadata = {
                 'title': safe_title,
@@ -266,7 +361,7 @@ class UniversalEmbedder:
                 'video_id': doc.video_id or '',
                 'file_path': doc.file_path
             }
-
+            
             # Clean metadata
             for key, value in metadata.items():
                 if value is None:
@@ -277,37 +372,37 @@ class UniversalEmbedder:
                 elif not isinstance(value, (str, int, float, bool)):
                     # Convert any other object to string
                     metadata[key] = str(value)
-
+            
             doc_id_source = (doc.video_id or safe_title)
             doc_id = str(doc_id_source).replace(' ', '_')
-
+            
             collection.add(
                 ids=[doc_id[:63]],
                 documents=[meta_doc],
                 metadatas=[metadata]
             )
-
+        
         logger.info(f"✅ Embedded metadata for {len(documents)} documents")
         return len(documents)
-
+    
     def embed_quotes(self, documents: List) -> int:
         """Embed quotes if collection exists"""
         if 'quotes' not in self.collections:
             return 0
-
+        
         collection = self.collections['quotes']
         quotes_data = []
-
+        
         for doc in documents:
             for i, quote in enumerate(doc.quotes):
                 if quote.get('text'):
                     safe_title = (doc.title or Path(doc.file_path).stem)
                     quote_id = f"{str(safe_title).replace(' ', '_')}_q{i:03d}"
-
+                    
                     quote_doc = f'"{quote["text"]}"\n\n'
                     quote_doc += f"From: {safe_title}\n"
                     quote_doc += f"Creator: {doc.creator or self.config['knowledge_base']['creator']}"
-
+                    
                     meta = {
                         'quote_text': (quote.get('text') or '')[:500],
                         'source_title': doc.title or '',
@@ -329,14 +424,14 @@ class UniversalEmbedder:
                         'document': quote_doc,
                         'metadata': meta
                     })
-
+        
         # Batch add quotes
         if quotes_data:
             batch_size = self.config['embeddings']['batch_size']
-
+            
             for i in range(0, len(quotes_data), batch_size):
                 batch = quotes_data[i:i + batch_size]
-
+                
                 # Safety pass
                 safe_metas = []
                 for q in batch:
@@ -355,14 +450,14 @@ class UniversalEmbedder:
                     documents=[q['document'] for q in batch],
                     metadatas=safe_metas
                 )
-
+        
         logger.info(f"✅ Embedded {len(quotes_data)} quotes")
         return len(quotes_data)
-
+    
     def get_statistics(self) -> Dict[str, Any]:
         """Get embedding statistics"""
         stats = {}
-
+        
         for name, collection in self.collections.items():
             count = collection.count()
             stats[name] = {
@@ -370,30 +465,30 @@ class UniversalEmbedder:
                 'count': count,
                 'metadata': collection.metadata
             }
-
+        
         return stats
 
 
 def create_embeddings(documents: List, chunks: List) -> UniversalEmbedder:
     """Main function to create all embeddings"""
-
+    
     embedder = UniversalEmbedder()
-
+    
     # Embed everything
     logger.info("Creating embeddings...")
-
+    
     content_count = embedder.embed_chunks(chunks)
     concepts_count = embedder.embed_concepts(documents)
     metadata_count = embedder.embed_metadata(documents)
     quotes_count = embedder.embed_quotes(documents)
-
+    
     # Show stats
     stats = embedder.get_statistics()
-
+    
     print("\n📊 Embedding Statistics:")
     for name, stat in stats.items():
         print(f"  {name}: {stat['count']:,} items")
-
+    
     return embedder
 
 
@@ -401,18 +496,18 @@ if __name__ == "__main__":
     # Test embeddings
     from lib.processor import DocumentProcessor
     from lib.chunker import SmartChunker
-
+    
     # Check for API key
     if not os.getenv('OPENAI_API_KEY'):
         print("⚠️  No OpenAI API key found. Using local embeddings.")
         print("For best results, set OPENAI_API_KEY in .env file")
-
+    
     processor = DocumentProcessor()
     documents = processor.process_all()
-
+    
     if documents:
         chunker = SmartChunker()
         chunks = chunker.chunk_documents(documents)
-
+        
         embedder = create_embeddings(documents, chunks)
         print("\n✅ Embeddings created successfully!")
