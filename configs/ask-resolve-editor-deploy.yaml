@@ -44,7 +44,7 @@ search:
 # To enable: change 'enabled' to true (only do this intentionally!)
 # Providers: "openrouter" (~10x cheaper) or "anthropic"
 metadata_injection:
-  enabled: false
+  enabled: true
   provider: "openrouter"
   model: "google/gemini-3-flash-preview"
   batch_size: 5
