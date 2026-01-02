@@ -16,7 +16,7 @@ data_sources:
 
 embeddings:
   provider: "voyage"
-  model: "voyage-3-lite"
+  model: "voyage-3-large"
   batch_size: 100
   show_progress: true
   fallback_model: "all-MiniLM-L6-v2"
@@ -37,7 +37,7 @@ search:
   enable_mmr: true
   # BM25 hybrid search with RRF fusion
   hybrid_enabled: true
-  hybrid_alpha: 0.7  # 70% vector, 30% BM25
+  hybrid_alpha: 0.7 # 70% vector, 30% BM25
   bm25_index_path: "/app/data/bm25_index.pkl"
 
 # ⚠️ ENRICHMENT DISABLED - costs money per build!
